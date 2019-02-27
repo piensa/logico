@@ -1,0 +1,14 @@
+[{
+    "id": "francesco",
+    "subjects": ["francesco", "admin"],
+    "resources": ["francesco.jpg"],
+    "actions": ["view"],
+    "effect": "allow"
+},
+{
+    "id": "simone",
+    "subjects": ["simone", "admin"],
+    "resources": ["simone.jpeg"],
+    "actions": ["view"],
+    "effect": "allow"
+}]

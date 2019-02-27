@@ -1,0 +1,180 @@
+version: '3'
+
+services:
+  hydra-migrate:
+    image: oryd/hydra:v1.0.0-rc.6_oryOS.10
+    links:
+      - postgresd:postgresd
+    networks:
+      - intranet
+    environment:
+      - LOG_LEVEL=debug
+      - HYDRA_SYSTEM_SECRET=youReallyNeedToChangeThis
+    command:
+      migrate sql $DATABASE_URL
+    restart: on-failure
+
+  hydra:
+    image: oryd/hydra:v1.0.0-rc.6_oryOS.10
+    container_name: hydra
+    depends_on:
+      - hydra-migrate
+    links:
+      - postgresd:postgresd
+    ports:
+      - "4444:4444"
+      - "4445:4445"
+    networks:
+      - intranet
+    command:
+      serve all --dangerous-force-http
+    environment:
+      - DATABASE_URL=$DATABASE_URL
+      - OAUTH2_CONSENT_URL=http://$BROWSER_IDP_HOST:3000/consent
+      - OAUTH2_LOGIN_URL=http://$BROWSER_IDP_HOST:3000/login
+      - OAUTH2_ISSUER_URL=http://localhost:4444
+    restart: on-failure
+    volumes:
+      - "./config/:/config/"
+
+  # keto:
+  #   container_name: keto
+  #   image: oryd/keto:v0.2.2-sandbox_oryOS.10
+  #   environment:
+  #     - DATABASE_URL=memory
+  #   networks:
+  #     - intranet
+  #   ports:
+  #     - 4466:4466
+  #   restart: on-failure
+  #   volumes:
+  #     - "./config/:/config/"
+
+  # ok-api:
+  #   container_name: ok-api
+  #   image: oryd/oathkeeper:v0.14.2_oryOS.10
+  #   links:
+  #     - hydra:hydra
+  #   ports:
+  #     - 4456:4456
+  #   networks:
+  #     - intranet
+  #   restart: on-failure
+  #   environment:
+  #     - LOG_LEVEL=debug
+  #     - ISSUER_URL=http://ok-proxy:4455/
+  #     - DATABASE_URL=memory
+  #     - PORT=4456
+  #     - CREDENTIALS_ISSUER_ID_TOKEN_HS256_SECRET=changemechangemechangemechangemedo
+  #     - AUTHORIZER_KETO_URL=http://keto:4466
+  #     - AUTHENTICATOR_OAUTH2_INTROSPECTION_URL=http://hydra:4445/oauth2/introspect
+  #   command: serve api
+  #   volumes:
+  #     - "./config/:/config/"
+
+  # ok-proxy:
+  #   container_name: ok-proxy
+  #   image: oryd/oathkeeper:v0.14.2_oryOS.10
+  #   links:
+  #     - hydra:hydra
+  #   ports:
+  #     - 4455:4455
+  #   restart: on-failure
+  #   depends_on:
+  #     - ok-api
+  #   networks:
+  #     - intranet
+  #   environment:
+  #     - LOG_LEVEL=debug
+  #     - OATHKEEPER_API_URL=http://ok-api:4456
+  #     - PORT=4455
+  #     - CREDENTIALS_ISSUER_ID_TOKEN_HS256_SECRET=changemechangemechangemechangeme
+  #     - AUTHORIZER_KETO_URL=http://keto:4466
+  #     - AUTHENTICATOR_OAUTH2_INTROSPECTION_URL=http://hydra:4445/oauth2/introspect
+  #   command: serve proxy
+
+  # minio:
+  #   container_name: minio
+  #   networks:
+  #     - intranet
+  #   image: minio/minio
+  #   volumes:
+  #     - "/Users/jorge/Desktop/minio:/data"
+  #   ports:
+  #     - 9000:9000
+  #   command: server /data
+  #   environment:
+  #     - MINIO_ACCESS_KEY=piensa
+  #     - MINIO_SECRET_KEY=puertico
+  # mc:
+  #   image: minio/mc
+  #   networks:
+  #     - intranet
+  #   depends_on:
+  #     - minio
+  #   links:
+  #     - minio:minio
+  #   container_name: mc
+  #   environment:
+  #     - MINIO_ACCESS_KEY=piensa
+  #     - MINIO_SECRET_KEY=puertico
+  #   entrypoint: >
+  #     /bin/sh -c "
+  #     /usr/bin/mc config host add res http://minio:9000 $${MINIO_ACCESS_KEY} $${MINIO_SECRET_KEY};
+  #     /usr/bin/mc mb res/simone; /usr/bin/mc mb res/francesco; /usr/bin/mc mb res/overall;
+  #     /usr/bin/mc policy public res/simone;/usr/bin/mc policy public res/francesco;
+  #     /usr/bin/mc policy public res/overall;"
+
+  login_consent:
+    container_name: login_consent
+    build: '../login_consent'
+    command: /app/main
+    networks:
+      - intranet
+    environment:
+      - DB_USER=$PG_USER
+      - DB_PW=$PG_PW
+      - DB_NAME=$DB_USERS
+      - DB_HOST=postgresd
+      - DB_PORT=5432
+      - HYDRA_BROWSER_URL=http://localhost:4444/oauth2/auth
+      - HYDRA_PUBLIC_URL=http://hydra:4444/oauth2/token
+      - HYDRA_ADMIN_URL=http://hydra:4445
+      - HYDRA_CLIENT_ID=piensa
+      - HYDRA_CLIENT_SECRET=piensa
+      - HYDRA_SCOPES=openid,offline,eat,sleep,rave,repeat
+      - PORT=3000
+    links:
+      - hydra
+      - postgresd
+    ports:
+      - "3000:3000"
+
+  # nginx:
+  #   build:
+  #     context: ./nginx/
+  #   links:
+  #     - postgresd
+  #     - hydra
+  #   networks:
+  #     - intranet
+  #   ports:
+  #     - "80:80"
+
+  postgresd:
+    image: postgres:9.6
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=$PG_USER
+      - POSTGRES_PASSWORD=$PG_PW
+      - POSTGRES_DB=$PG_DB
+    networks:
+      - intranet
+    ports:
+      - "5433:5432"
+    volumes:
+      - "./postgres/:/dump"
+
+networks:
+  intranet:
+    driver: bridge

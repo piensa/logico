@@ -1,0 +1,18 @@
+[{
+    "id": "superheroes",
+    "upstream": {
+        "url": "http://minio:9000"
+    },
+    "match": {
+        "url": "http://oathkeeper-proxy:4455/overall/<.*>",
+        "methods": [ "GET" ]
+    },
+    "authenticators": [{
+        "handler": "oauth2_introspection",
+        "config": {
+            "required_scope": ["read", "write"]
+        }
+    }],
+    "authorizer": {"handler": "allow"},
+    "credentials_issuer": { "handler": "noop" }
+}]

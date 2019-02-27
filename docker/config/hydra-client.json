@@ -1,0 +1,18 @@
+{
+  "client_id": "piensa",
+  "description": "Test client to redirect to its given port.",
+  "client_secret": "piensa",
+  "scope": "openid offline eat sleep rave repeat",
+  "grant_types": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "response_types": [
+    "code",
+    "id_token"
+  ],
+  "redirect_uris": [
+    "http://localhost:3000/callback",
+    "http://127.0.0.1:3000/callback"
+  ]
+}

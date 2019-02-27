@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Please sign in to proceed</title>
+</head>
+<body>
+<p>
+    Please sign in to proceed.
+</p>
+
+<form action="/login?login_challenge={{.Challenge}}" method="POST">
+    <input type="text" name="email">
+    <input type="password" name="password">
+    <input type="submit">
+</form>
+
+<p>
+    To sign in, use the credentials "spiderman@marvel.com:spiderman"
+</p>
+
+<p>{{.Error}}</p>
+
+</body>
+</html>

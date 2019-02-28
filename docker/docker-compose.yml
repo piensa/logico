@@ -33,7 +33,6 @@ services:
       - DATABASE_URL=$DATABASE_URL
       - OAUTH2_CONSENT_URL=http://$BROWSER_IDP_HOST:3000/consent
       - OAUTH2_LOGIN_URL=http://$BROWSER_IDP_HOST:3000/login
-      - OAUTH2_ISSUER_URL=http://localhost:4444
     restart: on-failure
     volumes:
       - "./config/:/config/"

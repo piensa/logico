@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gorilla/sessions"
-	lc "github.com/piensa/puertico/login_consent/logconsent"
+	lc "github.com/piensa/logico/logconsent"
 	"net/http"
 )
 

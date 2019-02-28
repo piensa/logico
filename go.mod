@@ -1,4 +1,4 @@
-module github.com/piensa/puertico/login_consent
+module github.com/piensa/logico
 
 require (
 	github.com/gorilla/sessions v0.0.0-20160922145804-ca9ada445741

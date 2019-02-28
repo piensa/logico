@@ -93,37 +93,36 @@ services:
       - AUTHENTICATOR_OAUTH2_INTROSPECTION_URL=http://hydra:4445/oauth2/introspect
     command: serve proxy
 
-  # minio:
-  #   container_name: minio
-  #   networks:
-  #     - intranet
-  #   image: minio/minio
-  #   volumes:
-  #     - "/Users/jorge/Desktop/minio:/data"
-  #   ports:
-  #     - 9000:9000
-  #   command: server /data
-  #   environment:
-  #     - MINIO_ACCESS_KEY=piensa
-  #     - MINIO_SECRET_KEY=puertico
-  # mc:
-  #   image: minio/mc
-  #   networks:
-  #     - intranet
-  #   depends_on:
-  #     - minio
-  #   links:
-  #     - minio:minio
-  #   container_name: mc
-  #   environment:
-  #     - MINIO_ACCESS_KEY=piensa
-  #     - MINIO_SECRET_KEY=puertico
-  #   entrypoint: >
-  #     /bin/sh -c "
-  #     /usr/bin/mc config host add res http://minio:9000 $${MINIO_ACCESS_KEY} $${MINIO_SECRET_KEY};
-  #     /usr/bin/mc mb res/simone; /usr/bin/mc mb res/francesco; /usr/bin/mc mb res/overall;
-  #     /usr/bin/mc policy public res/simone;/usr/bin/mc policy public res/francesco;
-  #     /usr/bin/mc policy public res/overall;"
+  minio:
+    container_name: minio
+    networks:
+      - intranet
+    image: minio/minio
+    volumes:
+      - "/Users/jorge/Desktop/minio:/data"
+    ports:
+      - 9000:9000
+    command: server /data
+    environment:
+      - MINIO_ACCESS_KEY=piensa
+      - MINIO_SECRET_KEY=puertico
+  mc:
+    image: minio/mc
+    networks:
+      - intranet
+    depends_on:
+      - minio
+    links:
+      - minio:minio
+    container_name: mc
+    environment:
+      - MINIO_ACCESS_KEY=piensa
+      - MINIO_SECRET_KEY=puertico
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add res http://minio:9000 $${MINIO_ACCESS_KEY} $${MINIO_SECRET_KEY};
+      /usr/bin/mc mb res/overall;
+      /usr/bin/mc policy public res/overall;"
 
   logico:
     container_name: logico

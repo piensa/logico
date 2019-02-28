@@ -4,8 +4,24 @@
         "url": "http://minio:9000"
     },
     "match": {
-        "url": "http://oathkeeper-proxy:4455/overall/<.*>",
-        "methods": [ "GET" ]
+        "url": "http://oathkeeper-proxy:4455/<.*>",
+        "methods": [ "GET" ]    
+    },
+    "authenticators": [{
+        "handler": "oauth2_introspection",
+        "config": {
+            "required_scope": ["read", "write"]
+        }
+    }],
+    "authorizer": {"handler": "allow"},
+    "credentials_issuer": { "handler": "noop" }
+},
+{
+    "id": "superheroes-api",
+    "upstream": {"url": ""},
+    "match": {
+        "url": "http://oathkeeper-api:4456/<.*>",
+        "methods": [ "GET" ]    
     },
     "authenticators": [{
         "handler": "oauth2_introspection",

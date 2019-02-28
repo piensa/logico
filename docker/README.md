@@ -5,9 +5,9 @@
 
 	make up
 
-## Import clients: application, oathkeeper and keto.
+## Import clients and rules: application, oathkeeper and keto.
 
-	make clients
+	make migrate
 
 ## Initialize oauth2 flow.
 

@@ -55,10 +55,7 @@ clients:
 		/config/hydra/keto.json \
 		/config/hydra/testapp.json \
 
-migrate:
-	@echo "[INFO] Migrating hydra client"
-	docker exec -it hydra hydra clients import --endpoint http://localhost:4445 /config/hydra-client.json
-
+migrate: clients
 	@echo "[INFO] Migrating oathkeeper rules"
 	docker exec -it ok-api oathkeeper rules import --endpoint http://localhost:4456 /config/ok-rule.json
 

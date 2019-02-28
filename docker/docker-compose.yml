@@ -24,6 +24,7 @@ services:
     ports:
       - "4444:4444"
       - "4445:4445"
+      - "5555:5555"
     networks:
       - intranet
     command:
@@ -125,9 +126,9 @@ services:
   #     /usr/bin/mc policy public res/simone;/usr/bin/mc policy public res/francesco;
   #     /usr/bin/mc policy public res/overall;"
 
-  login_consent:
-    container_name: login_consent
-    build: '../login_consent'
+  logico:
+    container_name: logico
+    build: '../'
     command: /app/main
     networks:
       - intranet

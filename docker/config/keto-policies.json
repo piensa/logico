@@ -1,14 +1,14 @@
 [{
-    "id": "francesco",
-    "subjects": ["francesco", "admin"],
-    "resources": ["francesco.jpg"],
+    "id": "marvel",
+    "subjects": ["<.*>@marvel.com"],
+    "resources": ["marvel.txt"],
     "actions": ["view"],
     "effect": "allow"
 },
 {
-    "id": "simone",
-    "subjects": ["simone", "admin"],
-    "resources": ["simone.jpeg"],
+    "id": "dc",
+    "subjects": ["<.*>@dc.com"],
+    "resources": ["dc.txt"],
     "actions": ["view"],
     "effect": "allow"
 }]

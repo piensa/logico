@@ -37,24 +37,58 @@ services:
     volumes:
       - "./config/:/config/"
 
-  # keto:
-  #   container_name: keto
-  #   image: oryd/keto:v0.2.2-sandbox_oryOS.10
-  #   environment:
-  #     - DATABASE_URL=memory
-  #   networks:
-  #     - intranet
-  #   ports:
-  #     - 4466:4466
-  #   restart: on-failure
-  #   volumes:
-  #     - "./config/:/config/"
+  keto-migrate:
+    image: oryd/keto:v0.2.2-sandbox_oryOS.10
+    links:
+      - postgresd:postgresd
+    environment:
+      - LOG_LEVEL=debug
+    networks:
+      - intranet
+    command:
+      migrate sql $DATABASE_URL
+    restart: on-failure
+
+  keto:
+    container_name: keto
+    image: oryd/keto:v0.2.2-sandbox_oryOS.10
+    depends_on:
+      - hydra
+      - keto-migrate
+    links:
+      - hydra:hydra
+      - postgresd:postgresd
+    environment:
+      - DATABASE_URL=$DATABASE_URL
+      - AUTHENTICATOR_OAUTH2_CLIENT_CREDENTIALS_TOKEN_URL=http://hydra:4444/oauth2/token
+      - AUTHENTICATOR_OAUTH2_INTROSPECTION_URL=http://hydra:4445/oauth2/introspect
+    networks:
+      - intranet
+    ports:
+      - 4466:4466
+    restart: on-failure
+    volumes:
+      - "./config/:/config/"
+
+  oathkeeper-migrate:
+    image: oryd/oathkeeper:v0.14.2_oryOS.10
+    links:
+      - postgresd:postgresd
+    environment:
+      - LOG_LEVEL=debug
+    networks:
+      - intranet
+    command:
+      migrate sql $DATABASE_URL
+    restart: on-failure
 
   ok-api:
     container_name: ok-api
     image: oryd/oathkeeper:v0.14.2_oryOS.10
     links:
       - hydra:hydra
+      - keto:keto
+      - postgresd:postgresd
     ports:
       - 4456:4456
     networks:
@@ -63,7 +97,7 @@ services:
     environment:
       - LOG_LEVEL=debug
       - ISSUER_URL=http://ok-proxy:4455/
-      - DATABASE_URL=memory
+      - DATABASE_URL=$DATABASE_URL
       - PORT=4456
       - CREDENTIALS_ISSUER_ID_TOKEN_HS256_SECRET=changemechangemechangemechangemedo
       - AUTHORIZER_KETO_URL=http://keto:4466
@@ -77,6 +111,8 @@ services:
     image: oryd/oathkeeper:v0.14.2_oryOS.10
     links:
       - hydra:hydra
+      - keto:keto
+      - ok-api:ok-api
     ports:
       - 4455:4455
     restart: on-failure
@@ -121,7 +157,7 @@ services:
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc config host add res http://minio:9000 $${MINIO_ACCESS_KEY} $${MINIO_SECRET_KEY};
-      /usr/bin/mc mb res/overall;
+      # /usr/bin/mc mb res/overall;
       /usr/bin/mc policy public res/overall;"
 
   logico:

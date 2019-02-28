@@ -133,7 +133,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		redirect := h.AcceptLogin(pw, challenge)
+		redirect := h.AcceptLogin(email, challenge)
 		http.Redirect(w, r, redirect, http.StatusFound)
 	}
 

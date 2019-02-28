@@ -49,6 +49,7 @@ initdb:
 	"PGPASSWORD=${PG_PW} psql -U ${PG_USER} ${DB_USERS} -h ${PG_HOST} -p 5432 -f /dump/insert.sql"
 
 clients:
+	@echo "\n[INFO] Migrating hydra clients"
 	docker exec -it hydra hydra clients import --endpoint http://localhost:4445 \
 		/config/hydra/app.json \
 		/config/hydra/oathkeeper.json \
@@ -56,8 +57,11 @@ clients:
 		/config/hydra/testapp.json \
 
 migrate: clients
-	@echo "[INFO] Migrating oathkeeper rules"
+	@echo "\n[INFO] Migrating oathkeeper rules"
 	docker exec -it ok-api oathkeeper rules import --endpoint http://localhost:4456 /config/ok-rule.json
+
+	@echo "\n[INFO] Migrating keto policies"
+	docker exec -it keto keto engines acp ory policies import regex --endpoint http://localhost:4466 /config/keto-policies.json
 
 down:
 	docker-compose down

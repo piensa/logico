@@ -4,7 +4,7 @@
         "url": "http://minio:9000"
     },
     "match": {
-        "url": "http://oathkeeper-proxy:4455/<.*>",
+        "url": "http://oathkeeper-proxy:4455/overall/<.*>",
         "methods": [ "GET" ]    
     },
     "authenticators": [{
@@ -13,14 +13,21 @@
             "required_scope": ["read", "write"]
         }
     }],
-    "authorizer": {"handler": "allow"},
+    "authorizer": {
+        "handler": "keto_engine_acp_ory",
+        "config": {
+            "required_action": "view",
+            "required_resource": "$1",
+            "flavor": "regex"
+        }
+    },
     "credentials_issuer": { "handler": "noop" }
 },
 {
     "id": "superheroes-api",
     "upstream": {"url": ""},
     "match": {
-        "url": "http://oathkeeper-api:4456/<.*>",
+        "url": "http://oathkeeper-api:4456/overall/<.*>",
         "methods": [ "GET" ]    
     },
     "authenticators": [{
@@ -29,6 +36,13 @@
             "required_scope": ["read", "write"]
         }
     }],
-    "authorizer": {"handler": "allow"},
+    "authorizer": {
+        "handler": "keto_engine_acp_ory",
+        "config": {
+            "required_action": "view",
+            "required_resource": "$1",
+            "flavor": "regex"
+        }
+    },
     "credentials_issuer": { "handler": "noop" }
 }]

@@ -1,0 +1,8 @@
+{
+  "client_id": "keto",
+  "description": "ORY Keto uses this client to perform OAuth 2.0 Token Introspection at ORY Hydra.",
+  "client_secret": "keto-client",
+  "scope": "",
+  "grant_types": ["client_credentials"],
+  "response_types": ["token"]
+}

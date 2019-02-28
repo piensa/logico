@@ -1,0 +1,18 @@
+{
+  "client_id": "testapp",
+  "description": "Test client to redirect to its given port.",
+  "client_secret": "testapp",
+  "scope": "openid offline read write",
+  "grant_types": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "response_types": [
+    "code",
+    "id_token"
+  ],
+  "redirect_uris": [
+    "http://localhost:5555/callback",
+    "http://127.0.0.1:5555/callback"
+  ]
+}

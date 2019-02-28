@@ -48,6 +48,13 @@ initdb:
 	docker exec -it postgres sh -c \
 	"PGPASSWORD=${PG_PW} psql -U ${PG_USER} ${DB_USERS} -h ${PG_HOST} -p 5432 -f /dump/insert.sql"
 
+clients:
+	docker exec -it hydra hydra clients import --endpoint http://localhost:4445 \
+		/config/hydra/app.json \
+		/config/hydra/oathkeeper.json \
+		/config/hydra/keto.json \
+		/config/hydra/testapp.json \
+
 migrate:
 	@echo "[INFO] Migrating hydra client"
 	docker exec -it hydra hydra clients import --endpoint http://localhost:4445 /config/hydra-client.json
@@ -65,11 +72,11 @@ logs:
 	docker-compose logs hydra
 
 issue_token:
-	docker exec -it hydra hydra token user --client-id piensa \
-	--client-secret piensa \
+	docker exec -it hydra hydra token user --client-id testapp \
+	--client-secret testapp \
 	--endpoint http://localhost:4444 \
 	--port 5555 \
-	--scope openid,offline,eat,sleep,rave,repeat
+	--scope openid,offline,read,write
 
 start: up initdb
 

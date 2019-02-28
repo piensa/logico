@@ -1,15 +1,18 @@
 
 # Hydra commands 
 
-## Import clients
+## Initialize stack
 
-	docker exec -it hydra hydra clients import "/config/hydra-client.json"
+	make up
 
-## Include single client with authorization codes
+## Import clients: application, oathkeeper and keto.
 
-	docker exec -it hydra hydra clients create --endpoint http://localhost:4445 --id piensa --secret piensa --grant-types authorization_code,refresh_token --response-types code,id_token --scope pagovalemia,openid,offline,blahblah --callbacks http://127.0.0.1:5555/callback
+	make clients
 
-## Authorize client.
+## Initialize oauth2 flow.
 
-	docker exec -it hydra hydra token user --client-id piensa --client-secret piensa --endpoint http://localhost:4444 --port 5555 --scope openid,offline,blahblah
+	make issue_token
+
+A server will start at port 5555. Open a browser in http://localhost:5555
+
 

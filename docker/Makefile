@@ -50,7 +50,7 @@ initdb:
 
 clients:
 	@echo "\n[INFO] Migrating hydra clients"
-	docker exec -it hydra hydra clients import --endpoint http://localhost:4445 \
+	docker exec -it hydra_admin hydra clients import --endpoint http://localhost:4445 \
 		/config/hydra/app.json \
 		/config/hydra/oathkeeper.json \
 		/config/hydra/keto.json \

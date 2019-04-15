@@ -14,6 +14,30 @@ services:
       migrate sql postgres://${DB_USER}:${DB_PW}@postgresd:${DB_PORT}/${DB_NAME}?sslmode=disable
     restart: on-failure
 
+  keto-migrate:
+    image: oryd/keto:v0.2.2-sandbox_oryOS.10
+    links:
+      - postgresd
+    environment:
+      - LOG_LEVEL=debug
+    networks:
+      - intranet
+    command:
+      migrate sql postgres://${DB_USER}:${DB_PW}@postgresd:${DB_PORT}/${DB_NAME}?sslmode=disable
+    restart: on-failure
+
+  oathkeeper-migrate:
+    image: oryd/oathkeeper:v0.14.2_oryOS.10
+    links:
+      - postgresd:postgresd
+    environment:
+      - LOG_LEVEL=debug
+    networks:
+      - intranet
+    command:
+      migrate sql postgres://${DB_USER}:${DB_PW}@postgresd:${DB_PORT}/${DB_NAME}?sslmode=disable
+    restart: on-failure
+
   hydra_admin:
     image: oryd/hydra:v1.0.0-rc.6_oryOS.10
     container_name: hydra_admin
@@ -54,119 +78,88 @@ services:
       - "traefik.port=4444"
       - "traefik.docker.network=web"
     restart: on-failure
+    volumes:
+      - "./config/:/config/"
 
-  # hydra_token:
-  #   image: oryd/hydra:v1.0.0-rc.6_oryOS.10
-  #   container_name: hydra_token
-  #   networks:
-  #     - intranet
-  #   command:
-  #     serve all --dangerous-force-http
-  #   environment:
-  #     - DATABASE_URL=postgres://${DB_USER}:${DB_PW}@postgresd:${DB_PORT}/${DB_NAME}?sslmode=disable
-  #     - OAUTH2_CONSENT_URL=http://logico.docker.localhost/consent
-  #     - OAUTH2_LOGIN_URL=http://logico.docker.localhost/login
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.backend=hydra"
-  #     - "traefik.frontend.rule=Host:hydra.docker.localhost"
-  #     - "traefik.port=4444"
-  #     - "traefik.docker.network=web"
-  #   restart: on-failure
-  #   volumes:
-  #     - "./config/:/config/"
+  keto:
+    container_name: keto
+    image: oryd/keto:v0.2.2-sandbox_oryOS.10
+    depends_on:
+      - hydra_admin
+      - hydra_public
+      - keto-migrate
+    links:
+      - hydra_admin
+      - hydra_public
+      - postgresd
+    environment:
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PW}@postgresd:${DB_PORT}/${DB_NAME}?sslmode=disable
+      - AUTHENTICATOR_OAUTH2_CLIENT_CREDENTIALS_TOKEN_URL=http://hydra_public:4444/oauth2/token
+      - AUTHENTICATOR_OAUTH2_INTROSPECTION_URL=http://hydra_admin:4445/oauth2/introspect
+    networks:
+      - intranet
+    restart: on-failure
+    volumes:
+      - "./config/:/config/"
 
-  # keto-migrate:
-  #   image: oryd/keto:v0.2.2-sandbox_oryOS.10
-  #   links:
-  #     - postgresd:postgresd
-  #   environment:
-  #     - LOG_LEVEL=debug
-  #   networks:
-  #     - intranet
-  #   command:
-  #     migrate sql postgres://${DB_USER}:${DB_PW}@postgresd:${DB_PORT}/${DB_NAME}?sslmode=disable
-  #   restart: on-failure
+  ok-api:
+    container_name: ok-api
+    image: oryd/oathkeeper:v0.14.2_oryOS.10
+    links:
+      - hydra_admin
+      - keto:keto
+      - postgresd:postgresd
+    networks:
+      - intranet
+      - web
+    restart: on-failure
+    environment:
+      - LOG_LEVEL=debug
+      - ISSUER_URL=http://ok-proxy:4455/
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PW}@postgresd:${DB_PORT}/${DB_NAME}?sslmode=disable
+      - PORT=4456
+      - CREDENTIALS_ISSUER_ID_TOKEN_HS256_SECRET=changemechangemechangemechangemedo
+      - AUTHORIZER_KETO_URL=http://keto:4466
+      - AUTHENTICATOR_OAUTH2_INTROSPECTION_URL=http://hydra_admin:4445/oauth2/introspect
+    command: serve api
+    volumes:
+      - "./config/:/config/"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=okapi"
+      - "traefik.frontend.rule=Host:okapi.${DOMAIN_NAME}"
+      - "traefik.port=4456"
+      - "traefik.docker.network=web"
 
-  # keto:
-  #   container_name: keto
-  #   image: oryd/keto:v0.2.2-sandbox_oryOS.10
-  #   depends_on:
-  #     - hydra
-  #     - keto-migrate
-  #   links:
-  #     - hydra:hydra
-  #     - postgresd:postgresd
-  #   environment:
-  #     - DATABASE_URL=postgres://${DB_USER}:${DB_PW}@postgresd:${DB_PORT}/${DB_NAME}?sslmode=disable
-  #     - AUTHENTICATOR_OAUTH2_CLIENT_CREDENTIALS_TOKEN_URL=http://hydra:4444/oauth2/token
-  #     - AUTHENTICATOR_OAUTH2_INTROSPECTION_URL=http://hydra:4445/oauth2/introspect
-  #   networks:
-  #     - intranet
-  #   ports:
-  #     - 4466:4466
-  #   restart: on-failure
-  #   volumes:
-  #     - "./config/:/config/"
-
-  # oathkeeper-migrate:
-  #   image: oryd/oathkeeper:v0.14.2_oryOS.10
-  #   links:
-  #     - postgresd:postgresd
-  #   environment:
-  #     - LOG_LEVEL=debug
-  #   networks:
-  #     - intranet
-  #   command:
-  #     migrate sql postgres://${DB_USER}:${DB_PW}@postgresd:${DB_PORT}/${DB_NAME}?sslmode=disable
-  #   restart: on-failure
-
-  # ok-api:
-  #   container_name: ok-api
-  #   image: oryd/oathkeeper:v0.14.2_oryOS.10
-  #   links:
-  #     - hydra:hydra
-  #     - keto:keto
-  #     - postgresd:postgresd
-  #   ports:
-  #     - 4456:4456
-  #   networks:
-  #     - intranet
-  #   restart: on-failure
-  #   environment:
-  #     - LOG_LEVEL=debug
-  #     - ISSUER_URL=http://ok-proxy:4455/
-  #     - DATABASE_URL=postgres://${DB_USER}:${DB_PW}@postgresd:${DB_PORT}/${DB_NAME}?sslmode=disable
-  #     - PORT=4456
-  #     - CREDENTIALS_ISSUER_ID_TOKEN_HS256_SECRET=changemechangemechangemechangemedo
-  #     - AUTHORIZER_KETO_URL=http://keto:4466
-  #     - AUTHENTICATOR_OAUTH2_INTROSPECTION_URL=http://hydra:4445/oauth2/introspect
-  #   command: serve api
-  #   volumes:
-  #     - "./config/:/config/"
-
-  # ok-proxy:
-  #   container_name: ok-proxy
-  #   image: oryd/oathkeeper:v0.14.2_oryOS.10
-  #   links:
-  #     - hydra:hydra
-  #     - keto:keto
-  #     - ok-api:ok-api
-  #   ports:
-  #     - 4455:4455
-  #   restart: on-failure
-  #   depends_on:
-  #     - ok-api
-  #   networks:
-  #     - intranet
-  #   environment:
-  #     - LOG_LEVEL=debug
-  #     - OATHKEEPER_API_URL=http://ok-api:4456
-  #     - PORT=4455
-  #     - CREDENTIALS_ISSUER_ID_TOKEN_HS256_SECRET=changemechangemechangemechangeme
-  #     - AUTHORIZER_KETO_URL=http://keto:4466
-  #     - AUTHENTICATOR_OAUTH2_INTROSPECTION_URL=http://hydra:4445/oauth2/introspect
-  #   command: serve proxy
+  ok-proxy:
+    container_name: ok-proxy
+    image: oryd/oathkeeper:v0.14.2_oryOS.10
+    links:
+      - hydra_admin
+      - keto
+      - ok-api
+    restart: on-failure
+    depends_on:
+      - ok-api
+    networks:
+      - intranet
+      - web
+    volumes:
+      - "./config/:/config/"
+    environment:
+      - LOG_LEVEL=debug
+      - OATHKEEPER_API_URL=http://ok-api:4456
+      - PORT=4455
+      - CREDENTIALS_ISSUER_ID_TOKEN_HS256_SECRET=changemechangemechangemechangeme
+      - AUTHORIZER_KETO_URL=http://keto:4466
+      - AUTHENTICATOR_OAUTH2_INTROSPECTION_URL=http://hydra_admin:4445/oauth2/introspect
+    command: serve proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=okproxy"
+      - "traefik.frontend.rule=Host:okproxy.${DOMAIN_NAME}"
+      - "traefik.port=4455"
+      - "traefik.docker.network=web"
 
   # minio:
   #   container_name: minio

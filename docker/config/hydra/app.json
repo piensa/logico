@@ -12,7 +12,7 @@
     "id_token"
   ],
   "redirect_uris": [
-    "http://localhost:3000/callback",
-    "http://127.0.0.1:3000/callback"
+    "http://localhost:5555/callback",
+    "http://127.0.0.1:5555/callback"
   ]
 }

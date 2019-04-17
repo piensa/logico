@@ -27,6 +27,7 @@ func main() {
 	defer d.Db.Close()
 
 	port := GetEnv("PORT", "3000")
+	// url := "0.0.0.0:" + port
 
 	// Create hydra client.
 	hydraConfig := map[string]string{
@@ -35,6 +36,7 @@ func main() {
 		"client_id":     GetEnv("HYDRA_CLIENT_ID", "piensa"),
 		"client_secret": GetEnv("HYDRA_CLIENT_SECRET", "piensa"),
 		"scopes":        GetEnv("HYDRA_SCOPES", "openid,offline,eat,sleep,rave,repeat"),
+		"callback_url":  GetEnv("CALLBACK_URL", "http://localhost:3000/callback"),
 	}
 	h = lc.CreateHydraClient(hydraConfig)
 

@@ -35,7 +35,7 @@ func (h *Hydra) updateConfig(params map[string]string) {
 			TokenURL: params["public_url"] + "/oauth2/token",
 			AuthURL:  params["public_url"] + "/oauth2/auth",
 		},
-		RedirectURL: "http://localhost:3000/callback",
+		RedirectURL: params["callback_url"],
 		Scopes:      scopes,
 	}
 }

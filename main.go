@@ -30,9 +30,8 @@ func main() {
 
 	// Create hydra client.
 	hydraConfig := map[string]string{
-		"browser_url":   GetEnv("HYDRA_BROWSER_URL", "http://localhost:4444"),
-		"public_url":    GetEnv("HYDRA_PUBLIC_URL", "http://localhost:4444"),
-		"admin_url":     GetEnv("HYDRA_ADMIN_URL", "http://localhost:4445"),
+		"public_url":    GetEnv("HYDRA_PUBLIC_URL", "http://api.logi.co"),
+		"admin_url":     GetEnv("HYDRA_ADMIN_URL", "http://admin.logi.co"),
 		"client_id":     GetEnv("HYDRA_CLIENT_ID", "piensa"),
 		"client_secret": GetEnv("HYDRA_CLIENT_SECRET", "piensa"),
 		"scopes":        GetEnv("HYDRA_SCOPES", "openid,offline,eat,sleep,rave,repeat"),

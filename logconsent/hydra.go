@@ -32,8 +32,8 @@ func (h *Hydra) updateConfig(params map[string]string) {
 		ClientID:     params["client_id"],
 		ClientSecret: params["client_secret"],
 		Endpoint: oauth2.Endpoint{
-			TokenURL: params["public_url"],
-			AuthURL:  params["browser_url"],
+			TokenURL: params["public_url"] + "/oauth2/token",
+			AuthURL:  params["public_url"] + "/oauth2/auth",
 		},
 		RedirectURL: "http://localhost:3000/callback",
 		Scopes:      scopes,

@@ -83,7 +83,6 @@ func consentHandler(w http.ResponseWriter, r *http.Request) {
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	access_token := authenticated(r)
-
 	if access_token == "" {
 		// Perform hydra auth workflow.
 		authURL := h.AuthURL()
@@ -91,6 +90,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		<html>
 			<head></head>
 			<body>
+				<h2>You are not logged in</h2>
 				<p><a href="%s">Authorize application</a></p>
 			</body>
 		</html>`, authURL)))
@@ -98,16 +98,25 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate token with Hydra server.
-	client, _, _ := h.Client.IntrospectOAuth2Token(access_token, "sleep")
-	if client.Active {
-		w.Write([]byte(fmt.Sprintf(`
-		<html>
-			<head></head>
-			<body>
-				<p>You are now logged in and token %s is Active!</p>
-			</body>
-		</html>`, access_token)))
+	values := map[string]string{
+		"access_token": access_token,
+		"proxy_url":    GetEnv("PROXY_URL", "http://okproxy.logi.co"),
 	}
+
+	t, err := template.New("index.html").ParseFiles("templates/index.html")
+	if err != nil {
+		fmt.Println(err)
+	}
+	t.Execute(w, &values)
+
+	// w.Write([]byte(fmt.Sprintf(`
+	// <html>
+	// 	<head></head>
+	// 	<body>
+	// 		<p>You are now logged in and token %s is Active!</p>
+	// 	</body>
+	// </html>`, access_token)))
+
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {

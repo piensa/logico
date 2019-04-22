@@ -35,6 +35,8 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not persist cookie", http.StatusBadRequest)
 		return
 	}
+
+	http.Redirect(w, r, "/", 301)
 }
 
 func consentHandler(w http.ResponseWriter, r *http.Request) {
@@ -99,8 +101,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Validate token with Hydra server.
 	values := map[string]string{
-		"access_token": access_token,
-		"proxy_url":    GetEnv("PROXY_URL", "http://okproxy.logi.co"),
+		"proxy_url": GetEnv("PROXY_URL", "http://okproxy.logi.co"),
 	}
 
 	t, err := template.New("index.html").ParseFiles("templates/index.html")

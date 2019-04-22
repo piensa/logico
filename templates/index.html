@@ -12,18 +12,17 @@
     <input id="search" type="button" value="Search">
 
     <p id="result"></p>
-
-    
-
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
     $('#search').click(function() {
-        let access_token = '{{.access_token }};'
         let text = $('input[type=text]')[0].value;
+        let token = document.cookie.split('=')[1]
+
         $.get({
             url: '{{.proxy_url}}/search?text=' + text,
             dataType: 'json',
+            headers: {'Authorization': 'Bearer ' + token},
             success: function (response) {
                 $('#result').text(response);
             },

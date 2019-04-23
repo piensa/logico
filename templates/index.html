@@ -21,7 +21,7 @@
 
         $.ajax({
             method: 'GET',
-            url: '{{.proxy_url}}/search?text=' + text,
+            url: '{{.proxy_url}}?text=' + text,
             success: function (response) {
                 $('#result').text(response);
             },

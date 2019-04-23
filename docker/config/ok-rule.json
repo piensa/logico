@@ -1,48 +1,38 @@
 [{
     "id": "superheroes",
     "upstream": {
-        "url": "http://minio:9000"
+        "url": "http://api:4000/v1"
     },
     "match": {
-        "url": "http://oathkeeper-proxy:4455/overall/<.*>",
+        "url": "http://okproxy.logi.co/pelias/<.*>",
         "methods": [ "GET" ]    
     },
     "authenticators": [{
         "handler": "oauth2_introspection",
         "config": {
-            "required_scope": ["read", "write"]
+            "required_scope": ["rave"]
         }
     }],
     "authorizer": {
         "handler": "keto_engine_acp_ory",
         "config": {
             "required_action": "view",
-            "required_resource": "$1",
+            "required_resource": "*",
             "flavor": "regex"
         }
     },
     "credentials_issuer": { "handler": "noop" }
 },
 {
-    "id": "superheroes-api",
-    "upstream": {"url": ""},
+    "id": "main",
+    "upstream": {
+        "url": "http://logico:3000"
+    },
     "match": {
-        "url": "http://oathkeeper-api:4456/overall/<.*>",
+        "url": "http://okproxy.logi.co/",
         "methods": [ "GET" ]    
     },
-    "authenticators": [{
-        "handler": "oauth2_introspection",
-        "config": {
-            "required_scope": ["read", "write"]
-        }
-    }],
-    "authorizer": {
-        "handler": "keto_engine_acp_ory",
-        "config": {
-            "required_action": "view",
-            "required_resource": "$1",
-            "flavor": "regex"
-        }
-    },
+    "authenticators": [{ "handler": "noop" }],
+    "authorizer": { "handler": "allow" },
     "credentials_issuer": { "handler": "noop" }
 }]

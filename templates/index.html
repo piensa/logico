@@ -17,18 +17,18 @@
 <script>
     $('#search').click(function() {
         let text = $('input[type=text]')[0].value;
-        let token = document.cookie.split('=')[1]
+        let token = '{{.access_token}}'
 
-        $.get({
+        $.ajax({
+            method: 'GET',
             url: '{{.proxy_url}}/search?text=' + text,
-            dataType: 'json',
-            headers: {'Authorization': 'Bearer ' + token},
             success: function (response) {
                 $('#result').text(response);
             },
             error: function (response) {
                 $('#result').text(response.statusText);
-            }
+            },
+            beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + token); }
         });
     });
 </script>

@@ -56,10 +56,13 @@ clients:
 		/config/hydra/keto.json \
 		/config/hydra/testapp.json \
 
-migrate: clients
+migrate: clients ok keto
+
+ok:
 	@echo "\n[INFO] Migrating oathkeeper rules"
 	docker exec -it ok-api oathkeeper rules import --endpoint http://localhost:4456 /config/ok-rule.json
 
+keto:
 	@echo "\n[INFO] Migrating keto policies"
 	docker exec -it keto keto engines acp ory policies import regex --endpoint http://localhost:4466 /config/keto-policies.json
 

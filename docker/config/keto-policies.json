@@ -1,14 +1,14 @@
 [{
     "id": "marvel",
     "subjects": ["<.*>@marvel.com"],
-    "resources": ["marvel.txt"],
+    "resources": ["*"],
     "actions": ["view"],
     "effect": "allow"
 },
 {
     "id": "dc",
     "subjects": ["<.*>@dc.com"],
-    "resources": ["dc.txt"],
+    "resources": ["*"],
     "actions": ["view"],
-    "effect": "allow"
+    "effect": "deny"
 }]

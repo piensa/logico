@@ -36,6 +36,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println(token.AccessToken)
 	http.Redirect(w, r, "/", 301)
 }
 
@@ -101,7 +102,8 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Validate token with Hydra server.
 	values := map[string]string{
-		"proxy_url": GetEnv("PROXY_URL", "http://okproxy.logi.co"),
+		"proxy_url":    GetEnv("PROXY_URL", "http://okproxy.logi.co"),
+		"access_token": access_token,
 	}
 
 	t, err := template.New("index.html").ParseFiles("templates/index.html")

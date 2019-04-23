@@ -12,7 +12,6 @@
     "id_token"
   ],
   "redirect_uris": [
-    "http://localhost:5555/callback",
-    "http://127.0.0.1:5555/callback"
+    "http://logico.logi.co/callback"
   ]
 }

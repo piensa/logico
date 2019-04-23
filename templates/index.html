@@ -23,7 +23,7 @@
             method: 'GET',
             url: '{{.proxy_url}}?text=' + text,
             success: function (response) {
-                $('#result').text(response);
+                $('#result').html(JSON.stringify(response, null, 4));
             },
             error: function (response) {
                 $('#result').text(response.statusText);

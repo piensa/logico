@@ -55,6 +55,8 @@ services:
       - "traefik.port=4445"
       - "traefik.docker.network=web"
     restart: on-failure
+    ports:
+      - "4445:4445"
     volumes:
       - "./config/:/config/"
 
@@ -67,8 +69,8 @@ services:
     command: serve public --dangerous-force-http
     environment:
       - DATABASE_URL=postgres://${DB_USER}:${DB_PW}@postgresd:${DB_PORT}/${DB_NAME}?sslmode=disable
-      - OAUTH2_CONSENT_URL=http://logico.${DOMAIN_NAME}/consent
-      - OAUTH2_LOGIN_URL=http://logico.${DOMAIN_NAME}/login
+      - OAUTH2_CONSENT_URL=http://localhost:3000/consent
+      - OAUTH2_LOGIN_URL=http://localhost:3000/login
       - SYSTEM_SECRET=youreallyneedtochangethis
       - OAUTH2_ISSUER_URL=http://api.${DOMAIN_NAME}
     labels:
@@ -78,6 +80,8 @@ services:
       - "traefik.port=4444"
       - "traefik.docker.network=web"
     restart: on-failure
+    ports:
+      - "4444:4444"
     volumes:
       - "./config/:/config/"
 
@@ -192,36 +196,36 @@ services:
   #     # /usr/bin/mc mb res/overall;
   #     /usr/bin/mc policy public res/overall;"
 
-  logico:
-    container_name: logico
-    image: ninjalikeme/logico
-    command: /app/main
-    networks:
-      - intranet
-      - web
-    environment:
-      - DB_USER=$DB_USER
-      - DB_PW=$DB_PW
-      - DB_NAME=$USER_DATABASE
-      - DB_HOST=postgresd
-      - DB_PORT=5432
-      - HYDRA_BROWSER_URL=http://hydra_public:4444/oauth2/auth
-      - HYDRA_PUBLIC_URL=http://hydra_public:4444/oauth2/token
-      - HYDRA_ADMIN_URL=http://hydra_admin:4445
-      # - HYDRA_CLIENT_ID=piensa
-      # - HYDRA_CLIENT_SECRET=piensa
-      # - HYDRA_SCOPES=openid,offline,eat,sleep,rave,repeat
-      - PORT=3000
-    links:
-      - hydra_admin
-      - hydra_public
-      - postgresd
-    labels:
-      - "traefik.enable=true"
-      - "traefik.backend=logico"
-      - "traefik.frontend.rule=Host:logico.${DOMAIN_NAME}"
-      - "traefik.port=3000"
-      - "traefik.docker.network=web"
+  # logico:
+  #   container_name: logico
+  #   image: ninjalikeme/logico
+  #   command: /app/main
+  #   networks:
+  #     - intranet
+  #     - web
+  #   environment:
+  #     - DB_USER=$DB_USER
+  #     - DB_PW=$DB_PW
+  #     - DB_NAME=$USER_DATABASE
+  #     - DB_HOST=postgresd
+  #     - DB_PORT=5432
+  #     - HYDRA_BROWSER_URL=http://hydra_public:4444/oauth2/auth
+  #     - HYDRA_PUBLIC_URL=http://hydra_public:4444/oauth2/token
+  #     - HYDRA_ADMIN_URL=http://hydra_admin:4445
+  #     # - HYDRA_CLIENT_ID=piensa
+  #     # - HYDRA_CLIENT_SECRET=piensa
+  #     # - HYDRA_SCOPES=openid,offline,eat,sleep,rave,repeat
+  #     - PORT=3000
+  #   links:
+  #     - hydra_admin
+  #     - hydra_public
+  #     - postgresd
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.backend=logico"
+  #     - "traefik.frontend.rule=Host:logico.${DOMAIN_NAME}"
+  #     - "traefik.port=3000"
+  #     - "traefik.docker.network=web"
 
   postgresd:
     image: postgres:9.6
@@ -230,6 +234,8 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PW}
       - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "5433:5432"
     networks:
       - intranet
     volumes:

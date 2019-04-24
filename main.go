@@ -44,6 +44,7 @@ func main() {
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/consent", consentHandler)
 	http.HandleFunc("/callback", callbackHandler)
+	http.HandleFunc("/logout", logoutHandler)
 	http.ListenAndServe("0.0.0.0:"+port, nil)
 
 }

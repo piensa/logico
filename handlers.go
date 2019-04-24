@@ -40,6 +40,12 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", 301)
 }
 
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, sessionName)
+	session.Options.MaxAge = -1
+	http.Redirect(w, r, "/", 301)
+}
+
 func consentHandler(w http.ResponseWriter, r *http.Request) {
 	consentRequestId := r.URL.Query().Get("consent_challenge")
 	if consentRequestId == "" {

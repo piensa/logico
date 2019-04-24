@@ -26,7 +26,7 @@
                 $('#result').html(JSON.stringify(response, null, 4));
             },
             error: function (response) {
-                $('#result').text(response.statusText);
+                $('#result').html(JSON.stringify(response, null, 4));
             },
             beforeSend: function(xhr, settings) { xhr.setRequestHeader('Authorization','Bearer ' + token); }
         });

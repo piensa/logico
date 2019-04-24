@@ -41,13 +41,21 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, sessionName)
-	session.Options.MaxAge = -1
-	if err := store.Save(r, w, session); err != nil {
-		http.Error(w, "Failed to delete session", http.StatusBadRequest)
-		return
+	session, err := store.Get(r, sessionName)
+	if err != nil {
+		fmt.Println(err)
 	}
-	http.Redirect(w, r, "/", 301)
+
+	session.Options.MaxAge = -1
+	session.Save(r, w)
+	w.Write([]byte(`
+	<html>
+		<head></head>
+		<body>
+			<h2>You are now logged out. Go to <a href="/">main</a></h2>
+		</body>
+	</html>`))
+	return
 }
 
 func consentHandler(w http.ResponseWriter, r *http.Request) {

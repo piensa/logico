@@ -43,6 +43,10 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, sessionName)
 	session.Options.MaxAge = -1
+	if err := store.Save(r, w, session); err != nil {
+		http.Error(w, "Failed to delete session", http.StatusBadRequest)
+		return
+	}
 	http.Redirect(w, r, "/", 301)
 }
 
